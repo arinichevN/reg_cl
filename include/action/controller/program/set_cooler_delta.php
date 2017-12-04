@@ -1,8 +1,8 @@
 <?php
 
-namespace controller\reg;
+namespace controller\program;
 
-class enable {
+class set_cooler_delta {
 
     public static function getUser() {
         return ['stranger' => '*'];
@@ -10,7 +10,7 @@ class enable {
 
     public static function execute($p) {
         \sock\init($p['address'], $p['port']);
-        \acp\sendPackI1(ACP_CMD_REGSMP_PROG_ENABLE, $p['item']);
+        \acp\requestSendI1F1List(ACP_CMD_REGONF_PROG_SET_COOLER_DELTA, $p['item']);
         \sock\suspend();
     }
 

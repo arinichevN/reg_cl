@@ -1,8 +1,8 @@
 <?php
 
-namespace controller\reg;
+namespace controller\program;
 
-class set_heater_kp {
+class get_data_runtime {
 
     public static function getUser() {
         return ['stranger' => '*'];
@@ -10,8 +10,10 @@ class set_heater_kp {
 
     public static function execute($p) {
         \sock\init($p['address'], $p['port']);
-        \acp\sendPackI1F1(ACP_CMD_REGSMP_PROG_SET_HEATER_KP, $p['item']);
+        $id=\acp\requestSendI1List(ACP_CMD_PROG_GET_DATA_RUNTIME, $p['item']);
+        $data = \acp\getRegsmpDataRuntime($id);
         \sock\suspend();
+        return $data;
     }
 
 }

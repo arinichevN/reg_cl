@@ -1,8 +1,8 @@
 <?php
 
-namespace controller\reg;
+namespace controller\program;
 
-class set_cooler_power {
+class set_change_gap {
 
     public static function getUser() {
         return ['stranger' => '*'];
@@ -10,7 +10,7 @@ class set_cooler_power {
 
     public static function execute($p) {
         \sock\init($p['address'], $p['port']);
-        \acp\sendPackI1F1(ACP_CMD_REGSMP_PROG_SET_COOLER_POWER, $p['item']);
+        \acp\requestSendI2List(ACP_CMD_REG_PROG_SET_CHANGE_GAP, $p['item']);
         \sock\suspend();
     }
 

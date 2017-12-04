@@ -1,8 +1,8 @@
 <?php
 
-namespace controller\reg;
+namespace controller\program;
 
-class set_cooler_kd {
+class set_heater_mode {
 
     public static function getUser() {
         return ['stranger' => '*'];
@@ -10,7 +10,7 @@ class set_cooler_kd {
 
     public static function execute($p) {
         \sock\init($p['address'], $p['port']);
-        \acp\sendPackI1F1(ACP_CMD_REGSMP_PROG_SET_COOLER_KD, $p['item']);
+        \acp\requestSendI1S1(ACP_CMD_REG_PROG_SET_HEATER_MODE, $p['item']);
         \sock\suspend();
     }
 

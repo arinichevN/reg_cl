@@ -1,8 +1,8 @@
 <?php
 
-namespace controller\reg;
+namespace controller\program;
 
-class set_em_mode {
+class disable {
 
     public static function getUser() {
         return ['stranger' => '*'];
@@ -10,7 +10,7 @@ class set_em_mode {
 
     public static function execute($p) {
         \sock\init($p['address'], $p['port']);
-        \acp\sendPackI1S1(ACP_CMD_REGSMP_PROG_SET_EM_MODE, $p['item']);
+        \acp\requestSendI1List(ACP_CMD_PROG_DISABLE, $p['item']);
         \sock\suspend();
     }
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace controller\reg;
+namespace controller\program;
 
-class get_data_init {
+class set_heater_delta {
 
     public static function getUser() {
         return ['stranger' => '*'];
@@ -10,10 +10,8 @@ class get_data_init {
 
     public static function execute($p) {
         \sock\init($p['address'], $p['port']);
-        \acp\sendPackI1(ACP_CMD_REGSMP_PROG_GET_DATA_INIT, $p['item']);
-        $data = \acp\getRegsmpDataInit();
+        \acp\requestSendI1F1List(ACP_CMD_REGONF_PROG_SET_HEATER_DELTA, $p['item']);
         \sock\suspend();
-        return $data;
     }
 
 }

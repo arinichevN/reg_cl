@@ -103,7 +103,7 @@ function RegButton(id, slave, kind) {
         this.blink('reg_updated_init');
     };
     this.updateRegRuntime = function (item) {
-        if (item.sensor.value !== null && item.state === "BUSY") {
+        if (item.sensor.value !== null && item.state === "BUSY" && item.sensor.state) {
             this.valueE.innerHTML = item.sensor.value.toFixed(this.FLOAT_PRES);
             this.uf_count = 0;
             clr(this.valueE, 'reg_dis');
