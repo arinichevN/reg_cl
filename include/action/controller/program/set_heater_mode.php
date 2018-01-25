@@ -10,7 +10,7 @@ class set_heater_mode {
 
     public static function execute($p) {
         \sock\init($p['address'], $p['port']);
-        \acp\requestSendI1S1(ACP_CMD_REG_PROG_SET_HEATER_MODE, $p['item']);
+        \acp\requestSendI1S1List(ACP_CMD_REG_PROG_SET_HEATER_MODE, $p['item']);
         \sock\suspend();
     }
 

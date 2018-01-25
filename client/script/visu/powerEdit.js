@@ -105,6 +105,9 @@ function PowerEdit() {
                     this.coolerB.innerHTML = this.value.cooler.toFixed(this.FLOAT_PRES);
                 }
                 break;
+            default:
+                console.log("incCB(): unknown state");
+                break;
         }
     };
     this.chSign = function () {
@@ -152,9 +155,8 @@ function PowerEdit() {
             this.slave = slave;
             this.kind = kind;
             this.value.id = data.id;
-            this.value.heater = data.heater.power;
-            this.value.cooler = data.cooler.power;
-
+            this.value.heater = limval(data.heater.power ,this.minv,this.maxv);
+            this.value.cooler = limval(data.cooler.power,this.minv, this.maxv);
 
             this.heaterB.disabled = false;
             if (isNaN(this.value.heater)) {

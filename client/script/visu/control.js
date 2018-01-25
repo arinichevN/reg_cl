@@ -97,7 +97,7 @@ function Control() {
             };
             a(this.container, [this.dataE, this.helpB, this.peerE]);
             for (var i = 0; i < this.peer.length; i++) {
-                var elem = new PeerButton(this.peer[i].name);
+                var elem = new PeerButton(this.peer[i]);
                 this.peer[i].elem = elem;
                 a(this.peerE, elem);
             }
