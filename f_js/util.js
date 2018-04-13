@@ -250,6 +250,17 @@ function clc(elem, cl) {//every element has every class
     }
     return true;
 }
+
+function set_disabled(elem, v) {
+    if (elem instanceof Array) {
+        for (var i = 0; i < elem.length; i++) {
+            elem[i].disabled = v;
+        }
+    } else {
+        elem.disabled = v;
+    }
+}
+
 function ael(elem, ev, fn, bl) {
     if (bl) {
         bl = true;

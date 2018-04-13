@@ -8,7 +8,7 @@ function Control() {
         {name: "канал 4", mu: "&deg;C", peer_id: 'reg_1', prog_id: 4, group_id: 4}
     ];
     this.peer = [
-        {id: 'reg_1', address: '127.0.0.1', port: 49176, timeout: 3, name: "регулятор 1"},
+        {id: 'reg_1', address: '127.0.0.1', port: 49192, timeout: 3, name: "регулятор 1"},
         //          {id: 'reg_2', address: '192.168.0.103', port: 49176, timeout: 3, name: "регулятор 2"}
     ];
     this.group = [
