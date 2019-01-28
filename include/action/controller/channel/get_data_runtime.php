@@ -1,8 +1,8 @@
 <?php
 
-namespace controller\program;
+namespace controller\channel;
 
-class reset {
+class get_data_runtime {
 
     public static function getUser() {
         return ['stranger' => '*'];
@@ -10,8 +10,10 @@ class reset {
 
     public static function execute($p) {
         \sock\init($p['address'], $p['port']);
-        \acp\requestSendI1List(ACP_CMD_PROG_RESET, $p['item']);
+        $id=\acp\requestSendI1List(ACP_CMD_CHANNEL_GET_DATA_RUNTIME, $p['item']);
+        $data = \acp\getRegsmpDataRuntime($id);
         \sock\suspend();
+        return $data;
     }
 
 }

@@ -154,36 +154,36 @@ function RegButton(id, slave, kind) {
             clr(this.valueE, "reg_lower");
         }
         var v = 0.0;
-        if (item.heater.use === false || item.heater.output === null || typeof item.heater.output === 'undefined' || item.heater.rsl === null || typeof item.heater.rsl === 'undefined') {
+        if (item.heater.use === false || item.heater.output === null || typeof item.heater.output === 'undefined' || item.heater.output_max === null || typeof item.heater.output_max === 'undefined') {
             cla(this.heaterE, "reg_dis");
             v = "&empty;";
         } else {
             var output = item.heater.output;
-            if (item.heater.output > item.heater.rsl) {
-                output = item.heater.rsl;
+            if (item.heater.output > item.heater.output_max) {
+                output = item.heater.output_max;
             }
             if (item.heater.output < 0) {
                 output = 0;
             }
-            v = (output / item.heater.rsl) * 100;
+            v = (output / item.heater.output_max) * 100;
             v = v.toFixed(this.FLOAT_PRES_OUT);
             clr(this.heaterE, "reg_dis");
         }
         this.heaterE.innerHTML = v;
 
         v = 0.0;
-        if (item.cooler.use === false || item.cooler.output === null || typeof item.cooler.output === 'undefined' || item.cooler.rsl === null || typeof item.cooler.rsl === 'undefined') {
+        if (item.cooler.use === false || item.cooler.output === null || typeof item.cooler.output === 'undefined' || item.cooler.output_max === null || typeof item.cooler.output_max === 'undefined') {
             cla(this.coolerE, "reg_dis");
             v = "&empty;";
         } else {
             var output = item.cooler.output;
-            if (item.cooler.output > item.cooler.rsl) {
-                output = item.cooler.rsl;
+            if (item.cooler.output > item.cooler.output_max) {
+                output = item.cooler.output_max;
             }
             if (item.cooler.output < 0) {
                 output = 0;
             }
-            v = (output / item.cooler.rsl) * 100;
+            v = (output / item.cooler.output_max) * 100;
             v = v.toFixed(this.FLOAT_PRES_OUT);
             clr(this.coolerE, "reg_dis");
         }

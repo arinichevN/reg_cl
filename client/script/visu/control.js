@@ -39,19 +39,12 @@ function Control() {
                 CONTROLLER: {
                     PING: 2,
                     PROGRAM: {
-                        START: 62,
-                        STOP: 63,
-                        RESET: 64,
-                        GET_DATA_RUNTIME: 34,
-                        GET_DATA_INIT: 35,
                         SET_GOAL: 36,
                         SET_HEATER_DELTA: 37,
                         SET_COOLER_DELTA: 38,
                         SET_CHANGE_GAP: 39,
                         SET_HEATER_POWER: 40,
                         SET_COOLER_POWER: 41,
-                        DISABLE: 42,
-                        ENABLE: 43,
                         SET_HEATER_MODE: 44,
                         SET_HEATER_KP: 45,
                         SET_HEATER_KI: 46,
@@ -61,6 +54,15 @@ function Control() {
                         SET_COOLER_KD: 50,
                         SET_COOLER_MODE: 51,
                         SET_VALUE: 52
+                    },
+                    CHANNEL: {
+                        START: 71,
+                        STOP: 72,
+                        RESET: 73,
+                        GET_DATA_RUNTIME: 74,
+                        GET_DATA_INIT: 75,
+                        DISABLE: 76,
+                        ENABLE: 77
                     }
                 }
             };
@@ -222,11 +224,11 @@ function Control() {
                             this.setReg(item, d.reg);
                         }
                         if (d.set_power) {
-                            if (item.reg.heater.rsl !== null) {
-                                this.setRegValue(item, (d.heater.power / 100) * item.reg.heater.rsl, 'set_heater_power');
+                            if (item.reg.heater.output_max !== null) {
+                                this.setRegValue(item, (d.heater.power / 100) * item.reg.heater.output_max, 'set_heater_power');
                             }
-                            if (item.reg.cooler.rsl !== null) {
-                                this.setRegValue(item, (d.cooler.power / 100) * item.reg.cooler.rsl, 'set_cooler_power');
+                            if (item.reg.cooler.output_max !== null) {
+                                this.setRegValue(item, (d.cooler.power / 100) * item.reg.cooler.output_max, 'set_cooler_power');
                             }
                         }
                     }
@@ -347,7 +349,7 @@ function Control() {
         if (this.curr_item.reg.peer !== null) {
             this.sendGetRegRuntime(this.curr_item.reg.peer, this.curr_item.prog_id);
         } else {
-            this.abort(this.ACTION.CONTROLLER.PROGRAM.GET_DATA_RUNTIME, "no peer");
+            this.abort(this.ACTION.CONTROLLER.CHANNEL.GET_DATA_RUNTIME, "no peer");
         }
     };
     this.updateNextItem = function () {
@@ -450,14 +452,14 @@ function Control() {
             return;
         }
         var act = 'enable';
-        var kind = this.ACTION.CONTROLLER.PROGRAM.ENABLE;
+        var kind = this.ACTION.CONTROLLER.CHANNEL.ENABLE;
         if (!value) {
             act = 'disable';
-            kind = this.ACTION.CONTROLLER.PROGRAM.DISABLE;
+            kind = this.ACTION.CONTROLLER.CHANNEL.DISABLE;
         }
         var data = [
             {
-                action: ['controller', 'program', act],
+                action: ['controller', 'channel', act],
                 param: {item: [item.prog_id], address: item.reg.peer.address, port: item.reg.peer.port}
             }
         ];
@@ -466,20 +468,20 @@ function Control() {
     this.sendGetRegRuntime = function (peer, prog_id) {
         var data = [
             {
-                action: ['controller', 'program', 'get_data_runtime'],
+                action: ['controller', 'channel', 'get_data_runtime'],
                 param: {address: peer.address, port: peer.port, item: [prog_id]}
             }
         ];
-        sendTo(this, data, this.ACTION.CONTROLLER.PROGRAM.GET_DATA_RUNTIME, 'json_udp_acp');
+        sendTo(this, data, this.ACTION.CONTROLLER.CHANNEL.GET_DATA_RUNTIME, 'json_udp_acp');
     };
     this.sendGetRegInit = function (peer, prog_id) {
         var data = [
             {
-                action: ['controller', 'program', 'get_data_init'],
+                action: ['controller', 'channel', 'get_data_init'],
                 param: {address: peer.address, port: peer.port, item: [prog_id]}
             }
         ];
-        sendTo(this, data, this.ACTION.CONTROLLER.PROGRAM.GET_DATA_INIT, 'json_udp_acp');
+        sendTo(this, data, this.ACTION.CONTROLLER.CHANNEL.GET_DATA_INIT, 'json_udp_acp');
     };
     this.delayUpdateNextItem = function () {
         try {
@@ -547,7 +549,8 @@ function Control() {
                 },
                 heater: {
                     use: null,
-                    rsl: null,
+                    output_max: null,
+                    output_min: null,
                     mode: null,
                     output: null,
                     delta: null,
@@ -558,7 +561,8 @@ function Control() {
                 },
                 cooler: {
                     use: null,
-                    rsl: null,
+                    output_max: null,
+                    output_min: null,
                     mode: null,
                     output: null,
                     delta: null,
@@ -588,7 +592,7 @@ function Control() {
         if (this.curr_item.reg.peer !== null) {
             this.sendGetRegInit(this.curr_item.reg.peer, this.curr_item.prog_id);
         } else {
-            this.abort(this.ACTION.CONTROLLER.PROGRAM.GET_DATA_INIT, "no peer");
+            this.abort(this.ACTION.CONTROLLER.CHANNEL.GET_DATA_INIT, "no peer");
         }
     };
     this.doAfterRegInit = function () {
@@ -607,7 +611,7 @@ function Control() {
     this.confirm = function (action, d, dt_diff) {
         try {
             switch (action) {
-                case this.ACTION.CONTROLLER.PROGRAM.GET_DATA_RUNTIME:
+                case this.ACTION.CONTROLLER.CHANNEL.GET_DATA_RUNTIME:
                     if (typeof d[0] !== 'undefined') {
                         var id = parseInt(d[0].id);
                         if (this.curr_item.prog_id !== id) {
@@ -634,7 +638,7 @@ function Control() {
                     }
                     this.doAfterRegRuntime();
                     break;
-                case this.ACTION.CONTROLLER.PROGRAM.GET_DATA_INIT:
+                case this.ACTION.CONTROLLER.CHANNEL.GET_DATA_INIT:
                     if (typeof d[0] !== 'undefined') {
                         var id = parseInt(d[0].id);
                         if (this.curr_item.prog_id !== id) {
@@ -652,7 +656,8 @@ function Control() {
                         } else {
                             this.curr_item.reg.heater.use = false;
                         }
-                        this.curr_item.reg.heater.rsl = Math.round(parseFloat(d[0].heater_rsl));
+                        this.curr_item.reg.heater.output_max = Math.round(parseFloat(d[0].heater_output_max));
+                        this.curr_item.reg.heater.output_min = Math.round(parseFloat(d[0].heater_output_min));
                         this.curr_item.reg.heater.mode = d[0].heater_mode;
                         this.curr_item.reg.heater.delta = parseFloat(d[0].heater_delta);
                         this.curr_item.reg.heater.kp = parseFloat(d[0].heater_kp);
@@ -664,7 +669,8 @@ function Control() {
                         } else {
                             this.curr_item.reg.cooler.use = false;
                         }
-                        this.curr_item.reg.cooler.rsl = Math.round(parseFloat(d[0].cooler_rsl));
+                        this.curr_item.reg.cooler.output_max = Math.round(parseFloat(d[0].cooler_output_max));
+                        this.curr_item.reg.cooler.output_min = Math.round(parseFloat(d[0].cooler_output_min));
                         this.curr_item.reg.cooler.mode = d[0].cooler_mode;
                         this.curr_item.reg.cooler.delta = parseFloat(d[0].cooler_delta);
                         this.curr_item.reg.cooler.kp = parseFloat(d[0].cooler_kp);
@@ -674,7 +680,8 @@ function Control() {
                         this.curr_item.reg.goal = null;
                         this.curr_item.reg.change_gap = null;
                         this.curr_item.reg.heater.use = null;
-                        this.curr_item.reg.heater.rsl = null;
+                        this.curr_item.reg.heater.output_max = null;
+                        this.curr_item.reg.heater.output_min = null;
                         this.curr_item.reg.heater.mode = null;
                         this.curr_item.reg.heater.delta = null;
                         this.curr_item.reg.heater.kp = null;
@@ -682,7 +689,8 @@ function Control() {
                         this.curr_item.reg.heater.kd = null;
 
                         this.curr_item.reg.cooler.use = null;
-                        this.curr_item.reg.cooler.rsl = null;
+                        this.curr_item.reg.cooler.output_max = null;
+                        this.curr_item.reg.cooler.output_min = null;
                         this.curr_item.reg.cooler.mode = null;
                         this.curr_item.reg.cooler.delta = null;
                         this.curr_item.reg.cooler.kp = null;
@@ -693,7 +701,7 @@ function Control() {
                     // console.log(this.curr_item.reg);
                     this.doAfterRegInit();
                     break;
-                case this.ACTION.CONTROLLER.PROGRAM.RESET:
+                case this.ACTION.CONTROLLER.CHANNEL.RESET:
                     cursor_blocker.disable();
                     break;
                 case this.ACTION.CONTROLLER.PING:
@@ -713,11 +721,11 @@ function Control() {
                     break;
                 case this.ACTION.CONTROLLER.PROGRAM.SET_VALUE:
                     break;
-                case this.ACTION.CONTROLLER.PROGRAM.START:
-                case this.ACTION.CONTROLLER.PROGRAM.STOP:
-                case this.ACTION.CONTROLLER.PROGRAM.RESET:
-                case this.ACTION.CONTROLLER.PROGRAM.DISABLE:
-                case this.ACTION.CONTROLLER.PROGRAM.ENABLE:
+                case this.ACTION.CONTROLLER.CHANNEL.START:
+                case this.ACTION.CONTROLLER.CHANNEL.STOP:
+                case this.ACTION.CONTROLLER.CHANNEL.RESET:
+                case this.ACTION.CONTROLLER.CHANNEL.DISABLE:
+                case this.ACTION.CONTROLLER.CHANNEL.ENABLE:
                     cursor_blocker.disable();
                     break;
                 default:
@@ -732,7 +740,7 @@ function Control() {
     this.abort = function (action, m, n) {
         try {
             switch (action) {
-                case this.ACTION.CONTROLLER.PROGRAM.GET_DATA_RUNTIME:
+                case this.ACTION.CONTROLLER.CHANNEL.GET_DATA_RUNTIME:
                     this.curr_item.reg.sensor.value = null;
                     this.curr_item.reg.sensor.state = null;
                     this.curr_item.reg.state = null; //INIT BUSY OFF
@@ -742,12 +750,13 @@ function Control() {
                     this.curr_item.reg.change_tm_rest = null;
                     this.doAfterRegRuntime();
                     break;
-                case this.ACTION.CONTROLLER.PROGRAM.GET_DATA_INIT:
+                case this.ACTION.CONTROLLER.CHANNEL.GET_DATA_INIT:
                     this.curr_item.reg.goal = null;
                     this.curr_item.reg.change_gap = null;
 
                     this.curr_item.reg.heater.use = null;
-                    this.curr_item.reg.heater.rsl = null;
+                    this.curr_item.reg.heater.output_max = null;
+                    this.curr_item.reg.heater.output_min = null;
                     this.curr_item.reg.heater.mode = null;
                     this.curr_item.reg.heater.delta = null;
                     this.curr_item.reg.heater.kp = null;
@@ -755,7 +764,8 @@ function Control() {
                     this.curr_item.reg.heater.kd = null;
 
                     this.curr_item.reg.cooler.use = null;
-                    this.curr_item.reg.cooler.rsl = null;
+                    this.curr_item.reg.cooler.output_max = null;
+                    this.curr_item.reg.cooler.output_min = null;
                     this.curr_item.reg.cooler.mode = null;
                     this.curr_item.reg.cooler.delta = null;
                     this.curr_item.reg.cooler.kp = null;
@@ -768,10 +778,10 @@ function Control() {
                     this.curr_ppeer.elem.update(null);
                     this.pingNextPeer();
                     break;
-                case this.ACTION.CONTROLLER.PROGRAM.DISABLE:
+                case this.ACTION.CONTROLLER.CHANNEL.DISABLE:
                     logger.err(264);
                     break;
-                case this.ACTION.CONTROLLER.PROGRAM.ENABLE:
+                case this.ACTION.CONTROLLER.CHANNEL.ENABLE:
                     logger.err(263);
                     break;
                 case this.ACTION.CONTROLLER.PROGRAM.SET_VALUE:
