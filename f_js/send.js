@@ -1,5 +1,6 @@
 var $sq = [];
 var $tmo = 4000;
+var $uc = null;
 function send(c, d, a) {
     var dest = window.location.protocol + '//' + window.location.host + window.location.pathname;
     var start = new Date();
@@ -23,7 +24,7 @@ function execute() {
     var timer = window.setTimeout(function () {
         timedout = true;
         r.abort();
-        $sq[0][0].abort($sq[0][2], 'execute: timeout');
+        $sq[0][0].abort($sq[0][2], 'execute: timeout', null, null, null);
         donext();
     }, $tmo);
     r.onreadystatechange = function () {
@@ -44,38 +45,42 @@ function execute() {
 }
 function processResponse(r, action) {
     var finish = new Date();
-    var diff = finish.getTime() - $sq[0][3].getTime();
+    var dt = finish.getTime() - $sq[0][3].getTime();
     if (r !== '') {
         try {
-            var d = JSON.parse(r);
+            var response = JSON.parse(r);
         } catch (e) {
-            $sq[0][0].abort(action, 'processResponse: can not parse json', diff);
+            $sq[0][0].abort(action, 'processResponse: can not parse json',null, dt, null);
             donext();
             return;
         }
+        var user = response.user;
+        var data = response.data;
+        if($uc){
+			$uc.setUserName(user);
+		}
         //c_status 0-error while action execution, 1-ok, 2-error before any action execution
-        switch (d.c_status) {
+        switch (response.status) {
             case 0:
             case 1:
-                for (var i = 0; i < d.data.length; i++) {
-                    if (d.status[i] === 1) {
-                        $sq[0][0].confirm(action, d.data[i], i, diff);
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].status === 1) {
+                        $sq[0][0].confirm(action, data[i].data, i, dt, user);
                     } else {
-                        $sq[0][0].abort(action, d.data[i], i, diff);
+                        $sq[0][0].abort(action, data, i, dt, user);
                     }
                 }
                 break;
             case 2:
-                $sq[0][0].abort(action, d.message, diff);
+                $sq[0][0].abort(action, data, null, dt, user);
                 break;
             case 3:
-                $sq[0][0].abort(action, d.message, diff);
+                $sq[0][0].abort(action, data, null, dt, user);
                 updateApp(d.message);
                 break;
         }
-
     } else {
-        $sq[0][0].abort(action, 'processResponse: response is empty', diff);
+        $sq[0][0].abort(action, 'processResponse: response is empty', dt, null);
     }
     donext();
 }

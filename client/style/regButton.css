@@ -1,6 +1,7 @@
 .reg_block{
+	float:left;
     min-width: 180px;
-    min-height: 100px;
+    min-height: 80px;
     border: 2px solid #73AD21;
     margin:5px;
     padding: 3px 3px 3px 3px;
@@ -10,6 +11,7 @@
     -moz-user-select:none;
     -ms-user-select:none;
     user-select: none;
+    font-family:monospace;
 }
 .reg_interactive{
     border-width: 2px;
@@ -20,27 +22,50 @@
 }
 .reg_selected{
     background-color: lightblue;
+}
+.reg_selected_get{
     border-color: blue;
+}
+.reg_levcont{
+    float:left;
+}
+.reg_level_low{
+	border-bottom: 3px solid blue;
+}
+.reg_level_high{
+	border-top: 3px solid red;
 }
 .reg_active{
     font-weight: bold;
     color:green;
 }
-.reg_heater{
-    color:red;
-}
-.reg_cooler{
-    color:blue;
-}
 .reg_cont_info{
     float:left;
     height: 50px;
 }
-.reg_l_cont{
+.reg_uchk{
+float:right;
+}
+.reg_hcont{
+    float:left;
+    width:100%;
+    margin-left:3px;
+}
+.reg_valcont{
     float:left;
 }
-.reg_r_cont{
+.reg_inicont{
     float:left;
+    clear:left;
+}
+.reg_runcont{
+    float:left;
+    clear:left;
+}
+.reg_utilcont{
+    float:left;
+    clear:left;
+    margin-left:5px;
 }
 .reg_val_cont{
     width: 100%;
@@ -55,18 +80,12 @@
     height: 20px;
     clear:left;
 }
-.reg_state2_cont{
-    float:left;
-    height: 20px;
-    clear:left;
-}
-.reg_em_ico{
-    font-size: 0.8em;
-    margin:3px;
-}
+
 .reg_value{
+	float:left;
     font-size: 2.5em;
     font-weight: bold;
+    margin-left:10px;
 }
 .reg_mu{
     float:left;
@@ -74,16 +93,12 @@
     font-weight: bold;
 }
 .reg_descr{
-    width: 100%;
-    font-size: 0.8em;
-    clear: left;
+    float:left;
+    font-size: 1em;
+    color:crimson;
+    
 }
 .reg_state{
-    float:left;
-    font-size: 0.8em;
-    margin-left: 10px;
-}
-.reg_time_rest{
     float:left;
     font-size: 0.8em;
     margin-left: 10px;
@@ -92,16 +107,6 @@
     float:left;
     width:20px;
     height: 20px;
-    margin-left: 10px;
-}
-.reg_goal{
-    float:left;
-    font-size: 0.8em;
-    margin-left: 10px;
-}
-.reg_mode{
-    float:left;
-    font-size: 0.8em;
     margin-left: 10px;
 }
 .reg_d{
@@ -127,25 +132,22 @@
 .reg_lower{
     color: blue;
 }
-.reg_updated_init .reg_init{
+.reg_descr1{
+	float:left;
+	margin-right:5px;
+}
+
+.reg_updated_reg_runtime .reg_descr1{
     background-color: yellow;
     opacity: 1;
 }
 
-.reg_updated_reg_runtime .reg_reg_runtime{
-    background-color: yellow;
-    opacity: 1;
+.reg_update_success{
+    color: green;
 }
-
-.reg_updated_reg_init .reg_reg_init{
-    background-color: yellow;
-    opacity: 1;
-}
-
-.reg_updated{
-    border-color: greenyellow;
-    background-color: yellow;
-    opacity: 1;
+.reg_update_failure{
+    border-color: red;
+    background-color: red;
 }
 .reg_group{
     float:left;
@@ -153,4 +155,11 @@
     padding-top:5px;
     padding-bottom: 5px;
     border-bottom: 3px dashed burlywood;
+}
+
+.d1e_update_failed{
+ color:red;
+}
+.d1e_update_success{
+ color:green;
 }

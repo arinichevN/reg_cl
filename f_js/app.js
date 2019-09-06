@@ -8,6 +8,7 @@ var visu_queue = [];
 var INT32_MAX = 2147483647;
 var INT32_MIN = -2147483648;
 var UINT32_MAX = 4294967295;
+var NO_DATA_STR = "&empty";
 function init() {
     for (var i = 0; i < elem.length; i++) {
         elem[i].init();

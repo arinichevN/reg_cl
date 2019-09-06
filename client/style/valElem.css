@@ -1,0 +1,28 @@
+.val_cont{
+	float:left;
+	border:2px solid green;
+	margin:3px;
+	min-width:2cm;
+}
+.val_descr{
+	padding-left:5px;
+}
+.val_val{
+	
+	height:1cm;
+	font-size:1.5em;
+	margin:3px;
+}
+.val_update_failed{
+	color:red;
+}
+.val_update_success{
+	color:blue;
+}
+.val_interactive{
+    border-width: 2px;
+}
+.val_interactive:hover{
+    outline:4px solid green;
+    cursor: default;
+}

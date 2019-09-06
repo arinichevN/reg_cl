@@ -1,3 +1,10 @@
+.cn_dcont{
+	float:left;
+}
+.cn_bcont{
+	float:left;
+	clear:left;
+}
 .cn_button{
     float:left;
     min-width: 250px;
@@ -6,8 +13,8 @@
 }
 .cn_button2{
     float:left;
-    min-width:250px;
-    min-height: 80px;
+    min-width:2cm;
+    height: 1.5cm;
     margin: 10px;
 }
 legend{
@@ -24,6 +31,7 @@ legend{
     background-color: lightgrey;
     font-size: 60px;
 }
+
 .cn_fs_sub{
    float:left;
    margin-right: 5px;

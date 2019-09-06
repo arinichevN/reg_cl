@@ -7,7 +7,7 @@ function HelpRegsmp() {
     this.init = function () {
         this.container = cvis();
         this.content = c("img");
-        s(this.content, "src", "client/image/help/main.bmp");
+        s(this.content, "src", "client/image/help/main.png");
         this.bb = new BackButton();
         a(this.container, [this.content, this.bb]);
         cla(this.bb,["f1", "help_b"]);

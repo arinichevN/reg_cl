@@ -11,6 +11,7 @@ function time(d, h, m, s) {
         return this.d * 86400 + this.h * 3600 + this.m * 60 + this.s;
     };
 }
+
 function time_now() {
     return parseInt((Date.now()) / 1000);
 }
@@ -140,6 +141,7 @@ function Enum(v) {
         this[v[i]] = i;
     }
 }
+    
 function cla(elem, cl) {
     if (elem instanceof Array) {
         if (cl instanceof Array) {
@@ -249,6 +251,11 @@ function clc(elem, cl) {//every element has every class
         }
     }
     return true;
+}
+
+function blink (elem, style, delay) {
+	cla(elem, style);
+	window.setTimeout(function () {clr(elem, style);}, delay);
 }
 
 function set_disabled(elem, v) {
@@ -390,11 +397,14 @@ function cpc(t) {
     }
     return ec;
 }
-function cit(t, p) {
+function cit() {
     var n = c('input');
     s(n, 'type', 'text');
-    s(n, 'title', t);
-    s(n, 'placeholder', p);
+    return n;
+}
+function cip() {
+    var n = c('input');
+    s(n, 'type', 'password');
     return n;
 }
 function cta(t, r, c) {
@@ -594,6 +604,38 @@ function cpo(o1, o2) {
         o1[attr] = o2[attr];
     }
 }
+function getById(a, id){
+	for(var i=0;i<a.length;i++){
+		if(a[i].id === id){
+			return a[i];
+		}
+	}
+	return null;
+}
+function getTopLevel(output, input){
+	for(var i=0;i<input.length;i++){
+		var f = true;
+		var item = input[i].parent_id;
+		for(var j=0;j<input.length;j++){
+			if(item === input[j].child_id){
+				f = false;
+				break;
+			}
+		}
+		if(f){
+			var ff=true;
+			for(var k=0;k<output.length;k++){
+				if(output[k] === item){
+					ff=false;
+					break;
+				}
+			}
+			if(ff){
+				output.push(item);
+			}
+		}
+	}
+}
 function asc(a, b) {
     return a - b;
 }
@@ -779,4 +821,20 @@ function limval(v, min, max) {
         return max;
     }
     return v;
+}
+
+function getFloat (v){
+	var out = parseFloat(v);
+	if(isNaN(out) || !isFinite(out)){
+		return null;
+	} 
+	return out;
+}
+
+function getInt (v){
+	var out = parseInt(v);
+	if(isNaN(out)){
+		return null;
+	} 
+	return out;
 }

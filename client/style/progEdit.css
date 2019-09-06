@@ -1,7 +1,40 @@
 .pre_header{
-    font-size: 2em;
+	margin:5px;
     font-weight: bold;
     color: coral;
+}
+.pre_header_elem{
+	padding-right: 5px;
+	padding-left: 5px;
+    margin-left: 5px;
+    border:2px solid green;
+}
+.pre_header_selget{
+	border:2px solid blue;
+}
+.pre_header_sel{
+	background-color: lightblue;
+}
+.pre_dcont{
+	float:left;
+}
+.pre_bcont{
+	float:left;
+	clear:left;
+}
+.pre_group_cont{
+	float:left;
+	border:1px dashed black;
+	margin: 5px;
+}
+.pre_group_itemcont{
+	float:left;
+}
+.pre_group_header{
+    padding-left: 5px;
+    padding-top: 4px;
+	color: coral;
+	font-weight: bold;
 }
 .pre_toggle{
     color: grey;
@@ -13,12 +46,12 @@
     color:brown;
 }
 .pre_hbtn{
-    width:100%;
-    height: 80%;
-    font-size: 3em;
-    font-weight: bold;
-    font-kerning:  none;
-    color:brown;
+	float:left;
+	margin:3px;
+    min-width:3.3cm;
+    height: 1.5cm;
+    font-size: 1em;
+    color:green;
 }
 .pre_btnH{
     width: 100%;
@@ -39,13 +72,18 @@
 .pre_cell2{
     float:left;
     width:50%;
-    height: 18%;
+    height: 1.5cm;
 }
 
 .pre_cell3{
     float:left;
     width:50%;
     height: 25%;
+}
+.pre_cell3w{
+    float:left;
+    width:100%;
+    height: 1.5cm;
 }
 
 .pre_cell4{
@@ -60,47 +98,6 @@
     height: 15%;
 }
 
-.pre_ems_header{
-    float:left;
-    width:100%;
-    height: 20%;
-    font-size: 1.5em;
-}
 
-.pre_ems_item{
-    float:left;
-    width:48%;
-    height: 100%;
-    margin-left: 10px;
-}
 
-.pre_ems_dis{
-    color:grey;
-}
 
-.pre_ems_en{
-    color:brown;
-}
-
-.pre_ems_icont{
-    float:left;
-    width:100%;
-    height: 60%;
-    border:1px dashed grey;
-    margin:3px;
-    padding: 3px;
-}
-
-.pre_em_mode{
-    float:left;
-    width:98%;
-    height: 98%;
-    margin: 1px;
-}
-
-.pre_ems_cont{
-    float:left;
-    width:100%;
-    height: 18%;
-
-}

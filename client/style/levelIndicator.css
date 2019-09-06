@@ -1,0 +1,10 @@
+.li_cont{
+	float:left;
+    clear:left;
+}
+.li_update_failed{
+	color:red;
+}
+.li_update_success{
+	color:greenyellow;
+}

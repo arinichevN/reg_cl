@@ -2,338 +2,354 @@ function ProgEdit() {
     this.type = VISU_TYPE.DIAL;
     this.container = null;
     this.header = null;
-    this.goalH = null;
-    this.gapH = null;
     this.goalB = null;
-    this.heaterB = null;
-    this.coolerB = null;
-    this.signB = null;
-    this.incB = null;
-    this.regB = null;
+    this.deltaB = null;
+    this.ominB = null;
+    this.omaxB = null;
+    this.kpB = null;
+    this.kiB = null;
+    this.kdB = null;
     this.powerB = null;
+    this.periodB = null;
+    this.rslB = null;
+    this.dcminB = null;
+    this.dcmaxB = null;
+    this.methodE = null;
+    this.modeE = null;
+    this.regB = null;
+    this.sH = null;
+    this.soutB = null;
+    this.stmB = null;
+    this.sstB = null;
+    this.pwmcont = null;
+	this.dpscont = null;
+	this.pidcont = null;
+	this.seccont = null;
+	this.spscont = null;
+    this.valbs = [];
+    this.parambs = [];
+    
+    this.getB = null;
     this.applyB = null;
     this.canceB = null;
-    this.saveB = null;
     this.slave = null;
     this.kind = null;
     this.initialized = false;
+    this.apply_active = false;
     this.current_row = null;
     this.minv = INT32_MIN;
     this.maxv = INT32_MAX;
     this.mode = null;
-    this.inc = 1;
-    this.sign = 1;
-    this.value = {id: null, goal: null, heater: {use: null, mode: null, delta: null, kp: null, ki: null, kd: null, power: null, output: null}, cooler: {use: null, mode: null, delta: null, kp: null, ki: null, kd: null, power: null, output: null}, change_gap: null, reg: null, set_power: false};
-    this.MODE = {
-        GOAL: 1,
-        DELTAH: 2,
-        DELTAC: 3,
-        GAP: 4
-    };
-    this.CATCH = {
-        POWER: 1,
-        HEATER: 2,
-        COOLER: 3
+    this.FLOAT_PRECISION = 3;
+    this.value = null;
+    this.MAP = {
+	    ONF:[{outer:REG_OUT.ON, inner:IND.ON},{outer:REG_OUT.OFF, inner:IND.OFF}],
+	    REG_MODE:[{outer:REG_OUT.HEATER, inner:IND.HEATER},{outer:REG_OUT.COOLER, inner:IND.COOLER}],
+	    REG_METHOD:[{outer:REG_OUT.PID, inner:IND.PID},{outer:REG_OUT.POS2, inner:IND.POS2},{outer:REG_OUT.POS1, inner:IND.POS1}]
     };
     this.FLOAT_PRES = 1;
+    this.channels = [];
+    this.getchannel = null;
     this.init = function () {
         var self = this;
         this.container = cvis();
         this.header = cd();
-        this.goalH = cd();
-        this.gapH = cd();
-        this.goalB = cb("");
-        this.heaterB = cb("");
-        this.coolerB = cb("");
-        this.gapB = cb("");
-        this.signB = cb("");
-        this.incB = cb("");
-        this.regB = cb("");
-        this.powerB = cb("");
-        this.cancelB = new CancelButton(self, 1);
+        
+        this.goalB = new ValElem(this.FLOAT_PRECISION, MIN_FLOAT, MAX_FLOAT, self, CMD_SET_GOAL, CMD_GET_GOAL, KIND.DBL);
+        
+        this.methodcont = new GroupElem1();
+        this.spscont = new GroupElem1();
+        this.powerB = new ValElem(0, 0, MAX_UI16, self, CMD_SET_SPS_OUT, CMD_GET_SPS_OUT, KIND.INTG);
+        
+		this.dpscont = new GroupElem1();
+        this.deltaB = new ValElem(this.FLOAT_PRECISION, 0.0, MAX_FLOAT, self, CMD_SET_DPS_HYS, CMD_GET_DPS_HYS, KIND.DBL);
+        this.ominB = new ValElem(0, 0, MAX_UI16, self, CMD_SET_DPS_OUT_MIN, CMD_GET_DPS_OUT_MIN, KIND.INTG);
+        this.omaxB = new ValElem(0, 0, MAX_UI16, self, CMD_SET_DPS_OUT_MAX, CMD_GET_DPS_OUT_MAX, KIND.INTG);
+        
+        this.pidcont = new GroupElem1();
+        this.kpB = new ValElem(this.FLOAT_PRECISION, 0.0, MAX_FLOAT, self, CMD_SET_PID_KP, CMD_GET_PID_KP, KIND.DBL);
+        this.kiB = new ValElem(this.FLOAT_PRECISION, 0.0, MAX_FLOAT, self, CMD_SET_PID_KI, CMD_GET_PID_KI, KIND.DBL);
+        this.kdB = new ValElem(this.FLOAT_PRECISION, 0.0, MAX_FLOAT, self, CMD_SET_PID_KD, CMD_GET_PID_KD, KIND.DBL);
+        
+        this.pwmcont = new GroupElem1();
+        this.periodB = new ValElem(0, 0, MAX_MSECONDS, self, CMD_SET_PWM_PERIOD, CMD_GET_PWM_PERIOD, KIND.INTG);
+        this.rslB = new ValElem(0, 0, MAX_UI16, self, CMD_SET_PWM_RESOLUTION, CMD_GET_PWM_RESOLUTION, KIND.INTG);
+        this.dcminB = new ValElem(0, 0, MAX_MSECONDS, self, CMD_SET_PWM_DUTY_CYCLE_MIN, CMD_GET_PWM_DUTY_CYCLE_MIN, KIND.INTG);
+        this.dcmaxB = new ValElem(0, 0, MAX_MSECONDS, self, CMD_SET_PWM_DUTY_CYCLE_MAX, CMD_GET_PWM_DUTY_CYCLE_MAX, KIND.INTG);
+        
+        this.seccont = new GroupElem1();
+	    this.soutB = new ValElem(0, 0, MAX_UI16, self, CMD_SET_SEC_OUT, CMD_GET_SEC_OUT, KIND.INTG);
+	    this.stmB = new ValElem(0, 0, MAX_TIME_S, self, CMD_SET_SEC_TM, CMD_GET_SEC_TM, KIND.INTG);
+	    this.sstB = new SelectButton(3, 1, self, CMD_SET_SEC_ENABLE, CMD_GET_SEC_ENABLE, this.MAP.ONF);
+        
+        this.fe = new FloatEdit(self);
+        
+        this.regB = new SelectButton(3, 1, self, CMD_SET_REG_ENABLE, CMD_GET_REG_ENABLE, this.MAP.ONF);
+        this.methodE = new SelectButton(4, 1, self, CMD_SET_REG_METHOD, CMD_GET_REG_METHOD, this.MAP.REG_METHOD);
+        this.modeE = new SelectButton(3, 1, self, CMD_SET_REG_MODE, CMD_GET_REG_MODE, this.MAP.REG_MODE);
+        
+        this.getB = cb("");
+        this.backB = new BackButton(self, 1);
         this.applyB = new ApplyButton(self, 1);
-        this.regB.onclick = function () {
-            if (self.value.reg) {
-                self.value.reg = false;
-                clr(self.regB, "pre_active");
-            } else {
-                self.value.reg = true;
-                cla(self.regB, "pre_active");
-            }
-        };
-        this.goalB.onmousedown = function () {
-            self.mode = self.MODE.GOAL;
-            inc.down(self);
-        };
-        this.heaterB.onmousedown = function () {
-            self.showHeaterDial();
-        };
-        this.coolerB.onmousedown = function () {
-            self.showCoolerDial();
-        };
-        this.gapB.onmousedown = function () {
-            self.mode = self.MODE.GAP;
-            inc.down(self);
-        };
-        this.powerB.onclick = function () {
-            self.showPowerDial();
-        };
-        this.updSign();
-        this.signB.onclick = function () {
-            self.chSign();
-        };
-        this.incB.innerHTML = this.inc;
-        this.incB.onclick = function () {
-            self.updInc();
-        };
+        this.applyB.disable();
+        this.getB.onclick = function(){
+			self.sendGetInit();
+		};
         var r2 = cd();
-        this.cancelB.onclick = function () {
-            self.cancel();
-        };
-        var rg = cd();
-        var rdh = cd();
-        var rdc = cd();
-        var rgap = cd();
-        var c1 = cd();
-        var c2 = cd();
-        var c3 = cd();
-        var c4 = cd();
-        var c5 = cd();
-        var c6 = cd();
-        var c7 = cd();
-        var c8 = cd();
-        var c9 = cd();
-        var c10 = cd();
-
-        a(rg, [this.goalH, this.goalB]);
-        a(rgap, [this.gapH, this.gapB]);
-        a(c1, [rg]);
-        a(c2, [rgap]);
-        a(c3, [this.signB]);
-        a(c4, [this.incB]);
-        a(c5, [this.heaterB]);
-        a(c6, [this.coolerB]);
-
-        a(c7, [this.regB]);
-        a(c8, [this.powerB]);
-        a(c9, [this.applyB]);
-        a(c10, [this.cancelB]);
-        a(this.container, [this.header, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10]);
+        
+		var c11 = cd();
+		var c12 = cd();
+		var c13 = cd();
+		var c14 = cd();
+		var c15 = cd();
+		var c16 = cd();
+		var c17 = cd();
+		var c18 = cd();
+		var c19 = cd();
+		var ce = cd();
+		var dcont = cd();
+		var bcont = cd();
+		this.pwmcont.a([this.periodB, this.rslB, this.dcminB, this.dcmaxB]);
+		this.dpscont.a([this.deltaB, this.ominB, this.omaxB]);
+		this.pidcont.a([this.kpB,this.kiB,this.kdB]);
+		this.seccont.a([this.soutB, this.stmB, this.sstB]);
+		this.spscont.a([this.powerB]);
+		this.methodcont.a([this.pidcont,this.dpscont, this.spscont]);
+		
+        a(dcont, [this.goalB,this.methodE,this.modeE,this.regB, this.methodcont, this.pwmcont, this.seccont]);
+		
+		a(c11, [this.fe.valB]);
+        a(c12, [this.fe.setB]);
+        a(c13, [this.fe.downB]);
+        a(c14, [this.fe.upB]);
+        a(c15, [this.fe.fractB]);
+        a(c16, [this.fe.wholeB]);
+        a(c17, [this.applyB]);
+        a(c18, [this.backB]);
+        a(c19, [this.getB]);
+        a(bcont, [c11,c12,c13,c14,c15,c16,c19,c17,c18]);
+        
+        a(this.container, [this.header, dcont, bcont]);
         cla([this.header], "pre_header");
-        cla([c5, c6, c7, c8], "pre_cell1");
-        cla([c1, c2, c3, c4, c9, c10], "pre_cell2");
-        cla([rg, this.heaterB, this.coolerB, rgap, this.signB, this.incB, this.regB, this.powerB, this.applyB, this.cancelB], "pre_icell");
-        cla([this.goalB, this.gapB], "pre_hbtn");
-        cla([this.goalH, this.gapH], "pre_btnH");
-        cla([this.signB, this.incB, this.goalB, this.gapB], "pre_interactive");
-        cla([this.regB], ["pre_toggle", "f1"]);
-        cla([this.goalB, this.heaterB, this.coolerB, this.gapB, this.powerB, this.cancelB, this.applyB, this.signB, this.incB], ["f1"]);
+        cla([dcont], "pre_dcont");
+        cla([bcont], "pre_bcont");
+        cla([ c11, c12, c13, c14, c15, c16,c17,c18], "pre_cell2");
+        cla([ c19], "pre_cell3w");
+        cla([this.fe.valB, this.fe.setB, this.fe.upB, this.fe.downB, this.fe.fractB, this.fe.wholeB, this.getB, this.applyB, this.backB], "pre_icell");
+        cla([this.methodE, this.modeE, this.regB, this.sstB], ["pre_hbtn"]);
+        cla([ this.fe.setB, this.fe.upB, this.fe.downB, this.fe.fractB, this.fe.wholeB, this.fe.fractB, this.fe.wholeB, this.goalB, this.deltaB, this.ominB, this.omaxB, this.kpB, this.kiB, this.kdB, this.powerB, this.periodB, this.rslB, this.dcminB,this.dcmaxB, this.soutB, this.stmB], "pre_interactive");
+        cla([this.backB, this.applyB, this.getB, this.fe.valB, this.fe.setB, this.fe.upB, this.fe.downB, this.fe.fractB, this.fe.wholeB], ["f1"]);
+        this.valbs = [this.goalB,this.deltaB,this.ominB,this.omaxB,this.kpB,this.kiB,this.kdB,this.powerB,this.rslB,this.periodB,this.dcminB,this.dcmaxB,this.soutB,this.stmB];
+        this.parambs = [
+	        this.goalB, this.deltaB, this.ominB, this.omaxB, this.kpB, this.kiB,
+	        this.kdB, this.powerB, this.rslB, this.periodB, this.dcminB, this.dcmaxB,
+	        this.soutB, this.stmB, this.sstB, this.regB, this.methodE, this.modeE
+        ];
         this.initialized = true;
     };
     this.getName = function () {
         return trans.get(312);
     };
-    this.incCB = function () {
-        switch (this.mode) {
-            case this.MODE.GOAL:
-                var r = this.value.goal + this.inc * this.sign;
-                if (r >= this.minv && r <= this.maxv) {
-                    this.value.goal = this.value.goal + (this.inc * this.sign);
-                    this.goalB.innerHTML = this.value.goal.toFixed(this.FLOAT_PRES);
-                }
-                break;
-            case this.MODE.GAP:
-                var r = this.value.change_gap + this.inc * this.sign;
-                if (r >= 0 && r <= this.maxv) {
-                    this.value.change_gap = Math.round(this.value.change_gap + (this.inc * this.sign));
-                    this.gapB.innerHTML = intToTimeStr(this.value.change_gap);
-                }
-                break;
+    this.incCB = function (kind, out) {
+        for(var i=0;i<this.valbs.length;i++){
+            this.valbs[i].incVal(out);
         }
     };
-    this.chSign = function () {
-        this.sign *= -1;
-        this.updSign();
-    };
-    this.updSign = function () {
-        if (this.sign > 0) {
-            this.signB.innerHTML = "+";
-        } else {
-            this.signB.innerHTML = "-";
+    this.setCB = function(out){
+        for(var i=0;i<this.valbs.length;i++){
+            this.valbs[i].setValue(out);
         }
+	};
+    this.anyParambSelected = function(){
+        for(var i = 0;i<this.parambs.length;i++){
+			if(this.parambs[i].selected){
+				return true;
+			}
+		}
+        return false;
     };
-    this.updInc = function () {
-        switch (this.inc) {
-            case 0.01:
-                this.inc = 0.1;
-                break;
-            case 0.1:
-                this.inc = 1;
-                break;
-            case 1:
-                this.inc = 10;
-                break;
-            case 10:
-                this.inc = 100;
-                break;
-            case 100:
-                this.inc = 0.1;
-                break;
-            case 1000:
-                this.inc = 0.01;
-                break;
-        }
-        this.incB.innerHTML = this.inc;
+    this.anyValbSelected = function(){
+        for(var i = 0;i<this.valbs.length;i++){
+			if(this.valbs[i].selected){
+				return true;
+			}
+		}
+        return false;
     };
-    this.showPowerDial = function () {
-        vpower_edit.prep(this.value, this, this.CATCH.POWER, trans.get(325));
-        showV(vpower_edit);
-    };
-    this.showHeaterDial = function () {
-        vem_edit.prep(this.value.heater, this, this.CATCH.HEATER, trans.get(315));
-        showV(vem_edit);
-    };
-    this.showCoolerDial = function () {
-        vem_edit.prep(this.value.cooler, this, this.CATCH.COOLER, trans.get(316));
-        showV(vem_edit);
-    };
-    this.catchEdit = function (d, kind, apply) {
-        try {
-            switch (kind) {
-                case this.CATCH.POWER:
-                    if (apply) {
-                        this.value.set_power = true;
-                        this.value.heater.power = d.heater;
-                        this.value.cooler.power = d.cooler;
-                    }
-                    break;
-                case this.CATCH.HEATER:
-                    if (apply) {
-                        this.value.heater.use = d.use;
-                        this.value.heater.mode = d.mode;
-                        this.value.heater.delta = d.delta;
-                        this.value.heater.kp = d.kp;
-                        this.value.heater.ki = d.ki;
-                        this.value.heater.kd = d.kd;
-                    }
-                    //console.log("heater: ",this.value.heater);
-                    break;
-                case this.CATCH.COOLER:
-                    if (apply) {
-                         this.value.cooler.use = d.use;
-                        this.value.cooler.mode = d.mode;
-                        this.value.cooler.delta = d.delta;
-                        this.value.cooler.kp = d.kp;
-                        this.value.cooler.ki = d.ki;
-                        this.value.cooler.kd = d.kd;
-                    }
-                    //console.log("cooler: ",this.value.heater);
-                    break;
-                default:
-                    console.log("catchEdit: bad k");
-                    break;
+	this.updateApplyB = function(){
+		if(this.apply_active && this.anyParambSelected()){
+			this.applyB.enable();
+		}else{
+			this.applyB.disable();
+		}
+	};
+	this.updateGetB = function(btarr){
+		if(this.getchannel == null){
+			this.getB.disabled = true;
+			return;
+		}
+		if(this.anyParambSelected()){
+			this.getB.disabled = false;
+		}else{
+			this.getB.disabled = true;
+		}
+	};
+    this.valElemSelect = function(){
+        if(this.anyValbSelected()){
+            this.fe.setB.disabled = false;
+			this.fe.upB.disabled = false;
+			this.fe.downB.disabled = false;
+			this.fe.setB.disabled = false;
+		}else{
+			this.fe.setB.disabled = true;
+			this.fe.upB.disabled = true;
+			this.fe.downB.disabled = true;
+			this.fe.setB.disabled = true;
+		}
+		this.updateApplyB();
+		this.updateGetB();
+	};
+    this.getUniquePeers = function(){
+		var out = [];
+		for(var i=0;i<this.channels.length;i++){
+			var found = false;
+			for(var p=0;p<out.length;p++){
+				if(out[p] === this.channels[i].peer){
+					found = true;
+					break;
+				}
+			}
+			if(!found){
+				out.push(this.channels[i].peer);
+			}
+		}
+		return out;
+	};
+	this.getPeerSelectedChannels = function(peer){
+		var out = [];
+		for(var i=0;i<this.channels.length;i++){
+			if(this.channels[i].peer === peer && this.channels[i].visu.selected){
+				out.push(this.channels[i]);
+			}
+		}
+		return out;
+	};
+	
+	this.sendData = function(){
+		var upeers = this.getUniquePeers();
+		for(var i = 0;i<upeers.length;i++){
+            var peer = upeers[i];
+            var channels = this.getPeerSelectedChannels(peer);
+            for(var j = 0;j<this.parambs.length;j++){
+                this.parambs[j].sendData(peer, channels);
             }
-        } catch (e) {
-            alert("progEdit: catchEdit: " + e.message);
-        }
-    };
-    this.cancel = function (id) {
-        this.slave.catchEdit(this.value, this.kind, 0);
-        goBack();
+		}
+	};
+	this.sendGetInit = function () {    
+        for(var i = 0;i<this.parambs.length;i++){
+            this.parambs[i].recieveData(this.getchannel);
+        }  
     };
     this.apply = function (id) {
-        this.slave.catchEdit(this.value, this.kind, 1);
-        goBack();
+		this.sendData();
     };
     this.updateStr = function () {
-        this.goalH.innerHTML = trans.get(318);
-        this.heaterB.innerHTML = trans.get(315);
-        this.coolerB.innerHTML = trans.get(316);
-        this.gapH.innerHTML = trans.get(320);
-        this.powerB.innerHTML = trans.get(325);
-
-        this.regB.innerHTML = trans.get(323);
-        this.cancelB.innerHTML = trans.get(5);
+        this.goalB.updateStr(trans.get(318), trans.get(318));
+        this.deltaB.updateStr("hys", trans.get(335));
+        this.ominB.updateStr("OFF out", trans.get(356));
+        this.omaxB.updateStr("ON out", trans.get(355));
+        this.kpB.updateStr("Kp", trans.get(336));
+        this.kiB.updateStr("Ki", trans.get(337));
+        this.kdB.updateStr("Kd", trans.get(338));
+        this.powerB.updateStr("out", trans.get(334));
+        this.periodB.updateStr("period", trans.get(340));
+        this.rslB.updateStr("rsl", trans.get(341));
+        this.dcminB.updateStr("min", trans.get(365));
+        this.dcmaxB.updateStr("max", trans.get(366));
+        
+        this.soutB.updateStr("out", trans.get(334));
+        this.stmB.updateStr("timeout", trans.get(345));
+        
+        this.methodE.updateStr([NO_DATA_STR, trans.get(354), trans.get(353), trans.get(359)], trans.get(328));
+        this.modeE.updateStr([NO_DATA_STR,trans.get(315), trans.get(316)], trans.get(333));
+        this.regB.updateStr([NO_DATA_STR,trans.get(330), trans.get(331)], trans.get(332));
+        this.sstB.updateStr([NO_DATA_STR,trans.get(330), trans.get(331)], trans.get(300));
+        
+        this.methodcont.updateStr(trans.get(328));
+        this.seccont.updateStr(trans.get(357));
+        this.pwmcont.updateStr(trans.get(347));
+        this.dpscont.updateStr(trans.get(353));
+        this.pidcont.updateStr(trans.get(354));
+        this.spscont.updateStr(trans.get(359));
+        
+      //  this.powerB.innerHTML = trans.get(325);
+		this.getB.innerHTML = trans.get(351);
+		this.getB.title = trans.get(364);
         this.applyB.innerHTML = trans.get(2);
+        this.applyB.container.title = trans.get(339);
+        
     };
-    this.prep = function (data, slave, kind, t) {
-        try {
-            this.header.innerHTML = t;
-            this.slave = slave;
-            this.kind = kind;
-            this.value.id = data.id;
-            this.value.goal = data.reg.goal;
 
-            this.value.heater.use = data.reg.heater.use;
-            this.value.heater.mode = data.reg.heater.mode;
-            this.value.heater.power = (data.reg.heater.output / data.reg.heater.rsl) * 100;
-            this.value.heater.delta = data.reg.heater.delta;
-            this.value.heater.kp = data.reg.heater.kp;
-            this.value.heater.ki = data.reg.heater.ki;
-            this.value.heater.kd = data.reg.heater.kd;
+	this.setHeader = function(channels){
+		clearCont(this.header);
+		for(var i=0;i<channels.length;i++){
+			var elem = c("span");
+			cla(elem, "pre_header_elem");
+			if(channels[i].visu.selected_get){
+				cla(elem, "pre_header_selget");
+			}
+			if(channels[i].visu.selected){
+				cla(elem, "pre_header_sel");
+			}
+			elem.innerHTML = channels[i].name;
+			a(this.header, elem);
+		}
+	};
+	this.setValue = function(channels){
+		var i0=-1;
+		if(channels.length){
+			i0 = 0;
+			dt = channels[0].visu.selection_date;
+		}
+		for(var i=1;i<channels.length;i++){
+			if(channels[i].visu.selection_data < dt){
+				dt = channels[i].visu.selection_date;
+				i0 = i;
+			}
+		}
+		if(i0 >= 0){
+			this.value = channels[i0].value;
+		}else{
+			this.value = null;
+		}
+		
+	};
+	this.getChannelSG = function(channels){
+		for(var i=0;i<channels.length;i++){
+			if(channels[i].visu.selected_get){
+				return channels[i];
+			}
+		}
+		return null;
+	};
 
-            this.value.cooler.use = data.reg.cooler.use;
-            this.value.cooler.mode = data.reg.cooler.mode;
-            this.value.cooler.power = (data.reg.cooler.output / data.reg.cooler.rsl) * 100;
-            this.value.cooler.delta = data.reg.cooler.delta;
-            this.value.cooler.kp = data.reg.cooler.kp;
-            this.value.cooler.ki = data.reg.cooler.ki;
-            this.value.cooler.kd = data.reg.cooler.kd;
+    this.prep = function (channels, slave) {
+		this.channels = channels;
+		this.slave = slave;
+		this.setHeader(this.channels);
+		this.getchannel = this.getChannelSG(channels);
+		var f = false;
+		for(var i=0;i<channels.length;i++){
+			if(channels[i].visu.selected){
+				f = true;
+				break;
+			}
+		}
+		this.apply_active = f;
+		this.updateGetB();
+		this.updateApplyB();
+		this.slave.update = false;
 
-            this.value.set_power = false;
-            this.value.change_gap = data.reg.change_gap;
-
-            if (data.reg.state === 'OFF') {
-                this.value.reg = false;
-            } else if (data.reg.state === null) {
-                this.value.reg = null;
-            } else {
-                this.value.reg = true;
-            }
-
-            if (this.value.goal === null) {
-                this.goalB.disabled = true;
-            } else {
-                this.goalB.innerHTML = this.value.goal.toFixed(this.FLOAT_PRES);
-                this.goalB.disabled = false;
-            }
-
-//            if (this.value.heater.delta === null) {
-//                this.heaterB.disabled = true;
-//            } else {
-//                this.heaterB.innerHTML = this.value.heater.delta.toFixed(this.FLOAT_PRES);
-//                this.heaterB.disabled = false;
-//            }
-//
-//            if (this.value.cooler.delta === null) {
-//                this.coolerB.disabled = true;
-//            } else {
-//                this.coolerB.innerHTML = this.value.cooler.delta.toFixed(this.FLOAT_PRES);
-//                this.coolerB.disabled = false;
-//            }
-
-            if (this.value.change_gap === null) {
-                this.gapB.disabled = true;
-            } else {
-                this.gapB.innerHTML = intToTimeStr(this.value.change_gap);
-                this.gapB.disabled = false;
-            }
-
-            if (this.value.reg === true) {
-                cla(this.regB, "pre_active");
-                this.regB.disabled = false;
-            } else if (this.value.reg === false) {
-                clr(this.regB, "pre_active");
-                this.regB.disabled = false;
-            } else if (this.value.reg === null) {
-                clr(this.regB, "pre_active");
-                this.regB.disabled = true;
-            }
-
-            this.slave.update = false;
-        } catch (e) {
-            alert("progEdit: prep: " + e.message);
-        }
     };
     this.show = function () {
         clr(this.container, "hdn");
@@ -341,6 +357,7 @@ function ProgEdit() {
     this.hide = function () {
         cla(this.container, "hdn");
     };
+	
 }
 var vprog_edit = new ProgEdit();
 visu.push(vprog_edit);
